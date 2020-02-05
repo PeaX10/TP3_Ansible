@@ -1,0 +1,16 @@
+- hosts: all
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: Open HTTP port (80)
+      firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+
+    - name: Open HTTP port (80)
+      firewalld:
+        service: ssh
+        permanent: yes
+        state: enabled
