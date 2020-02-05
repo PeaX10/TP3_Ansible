@@ -96,13 +96,99 @@ When a repository id is displayed, append these yum variables to the string if t
 For HTTPS traffic, you should open 443 TCP port.  
   
 ## Deploy our app
+Ansible .yml file.
 ```yaml
-- name: Run Database
+---
+- name: Install yum utils
+  yum:
+    name: yum-utils
+    state: latest
+
+- name: Install device-mapper-persistent-data
+  yum:
+    name: device-mapper-persistent-data
+    state: latest- name: Install lvm2
+  yum:
+    name: lvm2
+    state: latest
+
+- name: Add Docker repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+  become: yes
+
+- name: Install Docker
+  package:
+    name: docker-ce
+    state: latest
+  become: yes
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  become: yes
+
+- name: Add user centos to docker group
+  user:
+    name: centos
+    groups: docker
+    append: yes
+  become: yes
+
+- name: Create a network
+  docker_network:
+    name: my_net
+
+- name: Run POSTGRES
   docker_container:
-    name: database
+    name: postgres
+    image: postgres:12.0
+    env:
+      POSTGRES_DB: db_test
+      POSTGRES_USER: guest
+      POSTGRES_PASSWORD: guest_pwd
+    networks:
+      - name: "my_net"
+
+- name: Run API
+  docker_container:
+    name: http_api
+    image: peax10/tp-cpe:http
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_test
+      SPRING_DATASOURCE_USERNAME: guest
+      SPRING_DATASOURCE_PASSWORD: guest_pwd
+    networks:
+      - name: "my_net"
+
+- name: Run DB Changelog
+  docker_container:
+    name: db
     image: peax10/tp-cpe:db
+    env:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_test
+      SPRING_DATASOURCE_USERNAME: guest
+      SPRING_DATASOURCE_PASSWORD: guest_pwd
+    networks:
+      - name: "my_net"
+
 - name: Run HTTPD
   docker_container:
-    name: http
-    image: peax10/tp-cpe:http
+    name: httpd
+    image: peax10/tp-cpe:httpd
+    ports:
+      - "80:80"
+    networks:
+      - name: "my_net"
 ```  
+The only port we need to open here is the 80. The 8080 and 5432 are already accessible between containers because they are all in the same network.  
+``SPRING_DATASOURCE_URL`` refer to the application.yml file. It will override the value located in:  
+```yaml
+spring:
+    datasource:
+        url: URL replace
+```
+## Continuous Deployment
