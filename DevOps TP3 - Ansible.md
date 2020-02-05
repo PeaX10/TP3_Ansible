@@ -95,3 +95,15 @@ When a repository id is displayed, append these yum variables to the string if t
     state: enabled
 ```  
 For HTTPS traffic, you have to open port 443 TCP.  
+  
+## Deploy our app
+```yaml
+- name: Run Database
+  docker_container:
+    name: database
+    image: peax10/tp-cpe:db
+- name: Run HTTPD
+  docker_container:
+    name: http
+    image: peax10/tp-cpe:http
+```  
