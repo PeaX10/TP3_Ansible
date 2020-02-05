@@ -71,10 +71,9 @@ tasks :
         tags : docker
 ```  
 Now let's execute it: 
-![advanced playbook](https://raw.githubusercontent.com/PeaX10/TP3_Ansible/master/img/advanced_playbook.png)  
-  
+![advancedplaybook](https://raw.githubusercontent.com/PeaX10/TP3_Ansible/master/img/advanced_playbook.png)
 
-What is $basesearch ?  
+*__What is $basesearch ?__*  
 When a repository id is displayed, append these yum variables to the string if they are used in the baseurl/etc. Variables are appended in the order listed (and found).  
   
 ## Roles
@@ -94,7 +93,7 @@ When a repository id is displayed, append these yum variables to the string if t
     permanent: yes
     state: enabled
 ```  
-For HTTPS traffic, you have to open port 443 TCP.  
+For HTTPS traffic, you should open 443 TCP port.  
   
 ## Deploy our app
 ```yaml
