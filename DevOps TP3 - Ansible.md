@@ -192,3 +192,4 @@ spring:
         url: URL replace
 ```
 ## Continuous Deployment
+We didn't manage to finish properly the CI part so we didn't finish the CD part.
